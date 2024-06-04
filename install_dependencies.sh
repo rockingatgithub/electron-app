@@ -1,47 +1,52 @@
 #!/bin/bash
 
-# Define the installation directory
-INSTALL_DIR="$HOME/my_electron_app_bundle"
-mkdir -p "$INSTALL_DIR"
+# Set the installation directory
+INSTALL_DIR="$PWD/bundle"
 
-# Define the PATH to include the binaries
-export PATH="$INSTALL_DIR/bin:$INSTALL_DIR/node/bin:$INSTALL_DIR/jdk/bin:$INSTALL_DIR/adb:$PATH"
+# Check if brew is installed
+if ! command -v brew &> /dev/null
+then
+    echo "Homebrew could not be found. Installing now..."
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+fi
 
-# Create directories for each installation
-mkdir -p "$INSTALL_DIR/bin"
-mkdir -p "$INSTALL_DIR/node"
-mkdir -p "$INSTALL_DIR/appium"
-mkdir -p "$INSTALL_DIR/ffmpeg"
-mkdir -p "$INSTALL_DIR/jdk"
-mkdir -p "$INSTALL_DIR/adb"
+# repair brew if it has any issues
+brew tap --repair
 
 # Install adb
 echo "Installing adb..."
-brew install --prefix="$INSTALL_DIR" adb
+brew install adb
 
 # Install Node.js
 echo "Installing Node.js..."
-brew install --prefix="$INSTALL_DIR" node
+brew install node
 
 # Install Appium
 echo "Installing Appium..."
-npm install -g appium --prefix "$INSTALL_DIR"
+npm install -g appium
 
 # Install Appium UI Automator 2 driver
 echo "Installing Appium UI Automator 2 driver..."
-npm install -g appium-uiautomator2-driver --prefix "$INSTALL_DIR"
+npm install -g appium-uiautomator2-driver
 
 # Install FFmpeg
 echo "Installing FFmpeg..."
-brew install --prefix="$INSTALL_DIR" ffmpeg
+brew install ffmpeg
 
 # Install JDK
 echo "Installing JDK..."
-brew install --prefix="$INSTALL_DIR" openjdk
+brew install openjdk
+
+# Create symlinks for the binaries
+ln -s "$(which adb)" "$INSTALL_DIR/bin"
+ln -s "$(which node)" "$INSTALL_DIR/bin"
+ln -s "$(which appium)" "$INSTALL_DIR/bin"
+ln -s "$(which ffmpeg)" "$INSTALL_DIR/bin"
+ln -s "$(which java)" "$INSTALL_DIR/bin"
 
 # Export PATH for the Electron app
 echo "Exporting PATH for the Electron app..."
-echo "export PATH=\"$INSTALL_DIR/bin:$INSTALL_DIR/node/bin:$INSTALL_DIR/jdk/bin:$INSTALL_DIR/adb:\$PATH\"" >> ~/.bash_profile
+echo "export PATH=\"$INSTALL_DIR/bin:\$PATH\"" >> ~/.bash_profile
 
 # Source the updated .bash_profile to apply changes
 source ~/.bash_profile

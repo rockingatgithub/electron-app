@@ -1,6 +1,7 @@
-const { app, BrowserWindow, ipcMain } = require('electron');
 const { exec } = require('child_process');
+const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
+const sudo = require('sudo-prompt');
 
 function createWindow() {
   const mainWindow = new BrowserWindow({
@@ -32,13 +33,36 @@ app.on('window-all-closed', () => {
 // Handle running the install script
 ipcMain.handle('run-install-script', async () => {
   return new Promise((resolve, reject) => {
-    exec('sh ./install_dependencies.sh', (error, stdout, stderr) => {
+    const options = {
+      name: 'Electron App',
+    };
+
+    // Change the permissions of the script
+    sudo.exec('chmod +x ./install_dependencies.sh', options, (error, stdout, stderr) => {
       if (error) {
         reject(`Error: ${error.message}`);
       } else if (stderr) {
         reject(`Stderr: ${stderr}`);
       } else {
-        resolve(`Stdout: ${stdout}`);
+
+        sudo.exec('chown -R admin /opt/homebrew/var/homebrew', options, (error, stdout, stderr) => {
+          if (error) {
+            reject(`Error: ${error.message}`);
+          } else if (stderr) {
+            reject(`Stderr: ${stderr}`);
+          } else {
+            // Execute the script
+            sudo.exec('sh ./install_dependencies.sh', options, (error, stdout, stderr) => {
+              if (error) {
+                reject(`Error: ${error.message}`);
+              } else if (stderr) {
+                reject(`Stderr: ${stderr}`);
+              } else {
+                resolve(`Stdout: ${stdout}`);
+              }
+            });
+          }
+        })
       }
     });
   });
