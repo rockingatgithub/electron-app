@@ -21,6 +21,10 @@ brew install adb
 echo "Installing Node.js..."
 brew install node
 
+# # Configure npm to use a global directory
+# npm config set prefix '~/.npm-global'
+# echo "export PATH=~/.npm-global/bin:\$PATH" >> ~/.bash_profile
+
 # Install Appium
 echo "Installing Appium..."
 npm install -g appium
