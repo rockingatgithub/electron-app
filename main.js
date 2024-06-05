@@ -82,7 +82,7 @@ ipcMain.handle('run-install-script', async () => {
     // });
 
     // Execute the script
-    const install = spawn('sh', ['./install_dependencies.sh']);
+    const install = spawn('zsh', ['-c', 'chmod +x ./zsh_install_dependencies.sh && zsh ./zsh_install_dependencies.sh']);
 
     install.stdout.on('data', (data) => {
       console.log(`stdout: ${data}`);
